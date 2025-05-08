@@ -5,13 +5,16 @@ services:
       dockerfile: ./Dockerfile
     image: github-runner
     restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - REPO=${OWNER}/${REPO}
       - TOKEN=${TOKEN}
-      - NAME=${NAME}
+      - RUNNER_NAME=${RUNNER_NAME}
+      - LABELS=${LABELS}
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       resources:
         limits:
           cpus: '0.5'
