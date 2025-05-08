@@ -1,0 +1,21 @@
+services:
+  runner:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: github-runner
+    restart: always
+    environment:
+      - REPO=${OWNER}/${REPO}
+      - TOKEN=${TOKEN}
+      - NAME=${NAME}
+    deploy:
+      mode: replicated
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.4'
+          memory: 256M
