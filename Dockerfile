@@ -2,7 +2,7 @@ from ubuntu:20.04
 
 ARG RUNNER_VERSION="2.323.0"
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOCKER_GID=989
+ARG DOCKER_GID
 
 RUN apt update -y && apt upgrade -y && useradd -m docker
 

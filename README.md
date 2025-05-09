@@ -28,6 +28,18 @@ git clone https://github.com/your-org/github-runner-docker.git
 cd github-runner-docker
 ```
 
+### 2. Set values ​​for the argument
+
+```bash
+export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+```
+
+### 3. Build and run the compose file
+
+```bash
+docker compose up --build
+```
+
 # Самостоятельно размещенный GitHub Actions Runner в Docker
 
 Этот репозиторий содержит конфигурацию для запуска собственного GitHub Actions Runner в Docker-контейнере с помощью `docker-compose`. Runner автоматически регистрируется в указанном репозитории и запускается в двух экземплярах (репликах) для параллельного выполнения задач CI/CD.
@@ -56,4 +68,16 @@ cd github-runner-docker
 ```bash
 git clone https://github.com/your-org/github-runner-docker.git
 cd github-runner-docker
+```
+
+### 2. Установите значения для аргумента
+
+```bash
+export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+```
+
+### 3. Соберите и запустите compose файл
+
+```bash
+docker compose up --build
 ```
