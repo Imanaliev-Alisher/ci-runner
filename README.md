@@ -1,13 +1,13 @@
 # Self-Hosted GitHub Actions Runner in Docker
 
-This repository contains a configuration for running a self-hosted GitHub Actions runner inside a Docker container using `docker-compose`. The runner automatically registers with the specified repository and launches two instances (replicas) for parallel CI/CD task execution.
+This repository contains a configuration for running a self-hosted GitHub Actions runner inside a Docker container using `docker-compose`. The runner automatically registers with the specified repository and can be scaled for parallel CI/CD task execution.
 
 ## 📁 Repository Structure
 
-- `docker-compose.yml` — defines the `runner` service and configures scaling using Docker Swarm.
-- `Dockerfile` — builds an Ubuntu-based image with GitHub Actions Runner pre-installed.
-- `start.sh` — script that registers the runner with GitHub and starts it.
-- `.env` — environment file containing required variables (not tracked by Git, should be created manually).
+- `docker-compose.yml` — defines the `runner` service configuration
+- `Dockerfile` — builds an Ubuntu 22.04-based image with GitHub Actions Runner pre-installed
+- `start.sh` — script that registers the runner with GitHub and starts it
+- `.env.example` — example environment variables file (create `.env` from this template)
 
 ---
 
@@ -19,7 +19,7 @@ This repository contains a configuration for running a self-hosted GitHub Action
 
 ---
 
-## 🧪 Installation
+## 🚀 Quick Start
 
 ### 1. Clone the repository
 
@@ -28,56 +28,85 @@ git clone https://github.com/your-org/github-runner-docker.git
 cd github-runner-docker
 ```
 
-### 2. Set values ​​for the argument
+### 2. Configure environment variables
+
+Create a `.env` file from the example:
 
 ```bash
-export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+cp .env.example .env
 ```
 
-### 3. Build and run the compose file
+Edit `.env` and set your values:
+- `OWNER` - GitHub username or organization
+- `REPO` - Repository name
+- `TOKEN` - GitHub Personal Access Token
+- `RUNNER_NAME` - Name for your runner
+- `LABELS` - Comma-separated labels (e.g., `self-hosted,linux,docker`)
+- `DOCKER_GID` - Docker socket group ID (on Linux: `stat -c '%g' /var/run/docker.sock`)
+
+### 3. Build and run
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
-# Самостоятельно размещенный GitHub Actions Runner в Docker
+### 4. Verify runner registration
 
-Этот репозиторий содержит конфигурацию для запуска собственного GitHub Actions Runner в Docker-контейнере с помощью `docker-compose`. Runner автоматически регистрируется в указанном репозитории и запускается в двух экземплярах (репликах) для параллельного выполнения задач CI/CD.
+Check that your runner appears in GitHub:
+- Navigate to your repository → Settings → Actions → Runners
 
-## 📁 Состав репозитория
+### 5. Stop the runner
 
-- `docker-compose.yml` — описывает сервис `runner` и настраивает масштабируемость через Docker Swarm.
-- `Dockerfile` — создает образ Ubuntu с предустановленным GitHub Actions Runner.
-- `start.sh` — скрипт, выполняющий автоматическую регистрацию раннера в GitHub и его запуск.
-- `.env` — файл с переменными окружения (игнорируется Git и должен быть создан вручную).
+```bash
+docker compose down
+```
 
 ---
 
-## ⚙️ Требования
+## 🔧 Configuration
 
-- Docker
-- Docker Compose
-- Персональный токен доступа GitHub с правами на `repo` и `admin:repo_hook`
+### Scaling Runners
+
+To run multiple runner instances, edit the `replicas` value in [docker-compose.yml](docker-compose.yml):
+
+```yaml
+deploy:
+  replicas: 2  # Number of runner instances
+```
+
+### Resource Limits
+
+Adjust CPU and memory limits in [docker-compose.yml](docker-compose.yml):
+
+```yaml
+resources:
+  limits:
+    cpus: '1.0'
+    memory: 1G
+  reservations:
+    cpus: '0.5'
+    memory: 512M
+```
 
 ---
 
-## 🧪 Установка
+## 🐛 Troubleshooting
 
-### 1. Клонируй репозиторий
+### Runner not appearing in GitHub
 
+1. Check container logs: `docker compose logs -f`
+2. Verify TOKEN has correct permissions
+3. Ensure OWNER/REPO values are correct
+
+### Permission denied errors
+
+On Linux, ensure correct DOCKER_GID:
 ```bash
-git clone https://github.com/your-org/github-runner-docker.git
-cd github-runner-docker
+stat -c '%g' /var/run/docker.sock
 ```
 
-### 2. Установите значения для аргумента
+---
 
-```bash
-export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
-```
+## 📝 License
 
-### 3. Соберите и запустите compose файл
-
-```bash
-docker compose up --build
-```
+MIT

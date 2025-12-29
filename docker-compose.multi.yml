@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  runner-nginx:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        DOCKER_GID: ${DOCKER_GID:-999}
+    image: github-runner:latest
+    container_name: github-runner-nginx
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - REPO=${OWNER}/${REPO}
+      - TOKEN=${TOKEN}
+      - RUNNER_NAME=runner-nginx-1
+      - LABELS=self-hosted,linux,docker,nginx
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'Runner.Listener' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  runner-api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        DOCKER_GID: ${DOCKER_GID:-999}
+    image: github-runner:latest
+    container_name: github-runner-api
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - REPO=${OWNER}/${REPO}
+      - TOKEN=${TOKEN}
+      - RUNNER_NAME=runner-api-1
+      - LABELS=self-hosted,linux,docker,api
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'Runner.Listener' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
